@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <p:growl autoUpdate="true"/>
+        <h:form id="mainForm">
+            <p:panel id="panel" header="Quartz">
+                <p:dataTable value="#{viewController.quartzJobs}" var="item">
+                    <p:column headerText="JobName">
+                        <h:outputText value="#{item.jobName}"/>
+                    </p:column>
+                    <p:column headerText="JobGroup">
+                        <h:outputText value="#{item.jobGroup}"/>
+                    </p:column>
+                    <p:column headerText="NextFire">
+                        <h:outputText value="#{item.nextFireTime}"/>
+                    </p:column>
+                </p:dataTable>
+                <f:facet name="footer">
+                    <p:commandButton value="addJob" oncomplete="createView.show();" actionListener="#{viewController.prepare(event)}" update=":createForm"/>
+                    <p:commandButton value="removeJob" update="panel"/>
+                </f:facet>
+            </p:panel>
+        </h:form>
+    </h:body>
+
+    <p:dialog widgetVar="createView" appendTo="@(body)">
+        <h:form id="createForm">
+            <p:panelGrid id="create" columns="2">
+                <p:outputLabel for="name" value="Job Name"/>
+                <p:inputText id="name" value="#{viewController.job.jobName}"/>
+                <p:outputLabel for="group" value="Job Group"/>
+                <p:inputText id="group" value="#{viewController.job.jobGroup}"/>
+                <f:facet name="footer">
+                    <p:commandButton value="Add" action="#{viewController.createJob(event)}" process="@form" update=":mainForm:panel"/>
+                </f:facet>
+            </p:panelGrid>
+        </h:form>
+    </p:dialog>
+
+</html>
+

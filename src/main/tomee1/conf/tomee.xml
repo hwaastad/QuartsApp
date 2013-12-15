@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomee>
+    <!-- see http://tomee.apache.org/containers-and-resources.html -->
+
+    <!-- activate next line to be able to deploy applications in apps -->
+    <!-- <Deployments dir="apps" /> -->
+    <Deployments dir="apps" />
+    <Resource id="QUARTZDS" type="DataSource">
+        JdbcDriver      = org.postgresql.Driver
+        JdbcUrl         = jdbc:postgresql://localhost/quartz
+        JtaManaged      = false
+        UserName        = helge
+        Password
+    </Resource>
+</tomee>
