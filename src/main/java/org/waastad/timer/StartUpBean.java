@@ -5,22 +5,12 @@
  */
 package org.waastad.timer;
 
-import java.util.Date;
-import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import org.quartz.DateBuilder;
-import static org.quartz.JobBuilder.*;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.SimpleTrigger;
-import static org.quartz.TriggerBuilder.newTrigger;
-import org.quartz.impl.StdSchedulerFactory;
 
 /**
  *

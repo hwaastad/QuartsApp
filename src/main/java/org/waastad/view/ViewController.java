@@ -7,7 +7,11 @@ package org.waastad.view;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.event.ActionEvent;
 import javax.inject.Named;
 import org.omnifaces.cdi.ViewScoped;
@@ -23,7 +27,7 @@ import org.waastad.timer.SchedulerBean;
  * @author Helge Waastad <helge.waastad@datametrix.no>
  */
 @Named
-@ViewScoped
+@SessionScoped
 public class ViewController implements Serializable {
 
     private static final long serialVersionUID = 2302175898239971184L;
@@ -32,9 +36,14 @@ public class ViewController implements Serializable {
     private SchedulerBean schedulerBean;
 
     private QuartzJob job;
+    private List<QuartzJob> quartzJobs;
+    
+    @PostConstruct
+    public void init() throws SchedulerException{
+        quartzJobs = schedulerBean.getQuartzJobList();
+    }
 
     public void prepare(ActionEvent event) {
-        System.out.println("Preparing.....");
         job = new QuartzJob();
     }
 
@@ -50,16 +59,28 @@ public class ViewController implements Serializable {
         }
     }
 
-    public void startJob(ActionEvent event) {
-
+    public void startJob(ActionEvent event) throws SchedulerException {
+        schedulerBean.startJob(job);
+    }
+    
+    public void pauseJob(ActionEvent event) throws SchedulerException {
+        schedulerBean.stopJob(job);
     }
 
-    public void stopJob(ActionEvent event) {
-
+    public void removeJob(ActionEvent event) {
+        try {
+            schedulerBean.removeJob(job);
+        } catch (SchedulerException ex) {
+             LOG.error("Error", ex);
+        }
     }
 
-    public List<QuartzJob> getQuartzJobs() {
-        return schedulerBean.getQuartzJobList();
+    public void quartzJobsListener() {
+        try {
+            quartzJobs = schedulerBean.getQuartzJobList();
+        } catch (SchedulerException ex) {
+            LOG.error("Error", ex);
+        }
     }
 
     public QuartzJob getJob() {
@@ -68,6 +89,14 @@ public class ViewController implements Serializable {
 
     public void setJob(QuartzJob job) {
         this.job = job;
+    }
+
+    public List<QuartzJob> getQuartzJobs() {
+        return quartzJobs;
+    }
+
+    public void setQuartzJobs(List<QuartzJob> quartzJobs) {
+        this.quartzJobs = quartzJobs;
     }
 
 }

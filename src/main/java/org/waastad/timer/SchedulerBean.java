@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import org.quartz.DateBuilder;
 import static org.quartz.JobBuilder.*;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -24,6 +26,7 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import static org.quartz.TriggerBuilder.*;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
@@ -42,7 +45,7 @@ public class SchedulerBean {
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerBean.class);
     private Scheduler scheduler;
 
-    private final List<QuartzJob> quartzJobList = new ArrayList<>();
+    private List<QuartzJob> quartzJobList = new ArrayList<>();
 
     @PostConstruct
     public void init() {
@@ -62,12 +65,11 @@ public class SchedulerBean {
         props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
         props.setProperty("org.quartz.dataSource.QUARTZDS.jndiURL", "openejb:Resource/QUARTZDS");
         try {
-//            scheduler = StdSchedulerFactory.getDefaultScheduler();
-//            scheduler =SchedulerFactory.
-
+            
             StdSchedulerFactory sf = new StdSchedulerFactory();
             sf.initialize(props);
             scheduler = sf.getScheduler();
+//            scheduler = StdSchedulerFactory.getDefaultScheduler();
             for (String groupName : scheduler.getJobGroupNames()) {
                 for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                     String jobName = jobKey.getName();
@@ -87,7 +89,7 @@ public class SchedulerBean {
     }
 
     @PreDestroy
-    public void remove() throws SchedulerException{
+    public void remove() throws SchedulerException {
         LOG.info("Shutting down");
         scheduler.shutdown();
     }
@@ -97,13 +99,29 @@ public class SchedulerBean {
         JobDetail newjob = newJob(SayHello.class).withIdentity(job.getJobName(), job.getJobGroup()).requestRecovery().build();
         SimpleTrigger trigger = newTrigger()
                 .withIdentity(job.getJobName(), job.getJobGroup())
-                .startAt(DateBuilder.futureDate(1, DateBuilder.IntervalUnit.SECOND))
+                .startNow()
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withRepeatCount(20)
+                        .repeatForever()
+                        //.withRepeatCount(20)
                         .withIntervalInSeconds(5))
                 .build();
         scheduler.scheduleJob(newjob, trigger);
         quartzJobList.add(job);
+    }
+
+    public void removeJob(QuartzJob job) throws SchedulerException {
+        JobKey key = new JobKey(job.getJobName(), job.getJobGroup());
+        scheduler.deleteJob(key);
+    }
+
+    public void startJob(QuartzJob job) throws SchedulerException {
+        Trigger trigger = scheduler.getTrigger(TriggerKey.triggerKey(job.getJobName(), job.getJobGroup()));
+        scheduler.rescheduleJob(trigger.getKey(), trigger);
+    }
+
+    public void stopJob(QuartzJob job) throws SchedulerException {
+        scheduler.pauseJob(JobKey.jobKey(job.getJobName(), job.getJobGroup()));
+        //scheduler.unscheduleJob(TriggerKey.triggerKey(job.getJobName(), job.getJobGroup()));
     }
 
     public void fireNow(String jobName, String jobGroup)
@@ -112,7 +130,20 @@ public class SchedulerBean {
         scheduler.triggerJob(jobKey);
     }
 
-    public List<QuartzJob> getQuartzJobList() {
+    public List<QuartzJob> getQuartzJobList() throws SchedulerException {
+        quartzJobList = new ArrayList<>();
+        for (String groupName : scheduler.getJobGroupNames()) {
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                String jobName = jobKey.getName();
+                String jobGroup = jobKey.getGroup();
+
+                // get job's trigger
+                List<Trigger> triggers = (List<Trigger>) scheduler
+                        .getTriggersOfJob(jobKey);
+                Date nextFireTime = triggers.get(0).getNextFireTime();
+                quartzJobList.add(new QuartzJob(jobName, jobGroup, nextFireTime));
+            }
+        }
         return quartzJobList;
     }
 
