@@ -16,17 +16,20 @@ import javax.ejb.Stateless;
  * @author Helge Waastad <helge.waastad@datametrix.no>
  */
 @Stateless
-@LocalBean
 @DeclareRoles("SuperAdmin")
-public class BusinessBean {
+public class BusinessBean implements BusinessBeanRemote, BusinessBeanLocal {
 
     @Resource
     private SessionContext sessionContext;
 
     //@RolesAllowed("AdminGroup")
-    public String sayHello(final String name) {
+//    public String sayHello(final String name) {
+//        System.out.println("BusinessBean User is " + sessionContext.getCallerPrincipal().getName());
+//        return "Hello " + name;
+//    }
+    public String sayHello() {
         System.out.println("BusinessBean User is " + sessionContext.getCallerPrincipal().getName());
-        return "Hello " + name;
+        return "Hello without input";
     }
 
 }

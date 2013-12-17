@@ -19,6 +19,7 @@ import org.primefaces.context.RequestContext;
 import org.quartz.SchedulerException;
 import org.slf4j.LoggerFactory;
 import org.waastad.ejb.BusinessBean;
+import org.waastad.ejb.BusinessBeanLocal;
 import org.waastad.job.QuartzJob;
 import org.waastad.timer.SchedulerBean;
 
@@ -35,7 +36,7 @@ public class ViewController implements Serializable {
     @EJB
     private SchedulerBean schedulerBean;
     @EJB
-    private BusinessBean businessBean;
+    private BusinessBeanLocal businessBean;
 
     private QuartzJob job;
     private List<QuartzJob> quartzJobs;
@@ -46,7 +47,7 @@ public class ViewController implements Serializable {
     }
     
     public void testRemote(ActionEvent event){
-        businessBean.sayHello("XXX");
+        businessBean.sayHello();
     }
 
     public void prepare(ActionEvent event) {

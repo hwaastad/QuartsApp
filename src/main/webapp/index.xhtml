@@ -34,7 +34,7 @@
                     <p:commandButton value="removeJob" actionListener="#{viewController.testRemote(event)}" update="panel"/>
                 </f:facet>
             </p:panel>
-            <p:poll widgetVar="poll" global="false" interval="10" listener="#{viewController.quartzJobsListener}" update="panel"/>
+           <p:poll widgetVar="poll" global="false" interval="30" listener="#{viewController.quartzJobsListener}" update="panel"/>
         </h:form>
     </h:body>
 
