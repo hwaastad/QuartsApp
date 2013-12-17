@@ -61,6 +61,11 @@
             <version>1.7.5</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz-jobs</artifactId>
+            <version>2.2.0</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>QuartsApp</finalName>
@@ -86,7 +91,7 @@
                             <lib>org.eclipse.persistence:eclipselink:2.5.1</lib>
                             <lib>org.postgresql:postgresql:${postgres.version}</lib>
                             <lib>c3p0:c3p0:0.9.1.1</lib>
-                           <!--- <lib>mysql:mysql-connector-java:5.1.27</lib>-->
+                            <!--- <lib>mysql:mysql-connector-java:5.1.27</lib>-->
                         </libs>
                         <synchronization>
                             <extensions>
@@ -127,6 +132,9 @@
                         <groupId>org.apache.openejb.maven</groupId>
                         <artifactId>tomee-maven-plugin</artifactId>
                         <configuration>
+                            <systemVariables>
+                                <java.security.auth.login.config>${project.build.directory}/instance1/conf/login.config</java.security.auth.login.config>
+                            </systemVariables>
                             <args>-Dopenejb.session-context=http -Dtomee.session-context.wrapper=http</args>
                             <catalinaBase>${project.build.directory}/instance1</catalinaBase>
                             <tomeeShutdownPort>8015</tomeeShutdownPort>

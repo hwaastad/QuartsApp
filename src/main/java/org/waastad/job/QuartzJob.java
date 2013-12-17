@@ -53,4 +53,9 @@ public class QuartzJob implements Serializable {
         return jobGroup;
     }
 
+    @Override
+    public String toString() {
+        return "QuartzJob{" + "jobName=" + jobName + ", jobGroup=" + jobGroup + '}';
+    }
+
 }

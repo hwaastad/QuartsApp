@@ -5,23 +5,21 @@
  */
 package org.waastad.timer;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import org.quartz.DateBuilder;
+import org.omnifaces.util.Faces;
 import static org.quartz.JobBuilder.*;
 import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
@@ -40,9 +38,10 @@ import org.waastad.job.SayHello;
  */
 @Singleton
 @Startup
-public class SchedulerBean {
+public class SchedulerBean implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchedulerBean.class);
+    private static final long serialVersionUID = -6026489540159034940L;
     private Scheduler scheduler;
 
     private List<QuartzJob> quartzJobList = new ArrayList<>();
@@ -50,7 +49,7 @@ public class SchedulerBean {
     @PostConstruct
     public void init() {
         Properties props = new Properties();
-        props.setProperty("org.quartz.scheduler.instanceName", "SmartGuestScheduler");
+        props.setProperty("org.quartz.scheduler.instanceName", "TestScheduler");
         props.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         props.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
         props.setProperty("org.quartz.threadPool.threadCount", "25");
@@ -65,11 +64,10 @@ public class SchedulerBean {
         props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
         props.setProperty("org.quartz.dataSource.QUARTZDS.jndiURL", "openejb:Resource/QUARTZDS");
         try {
-            
+
             StdSchedulerFactory sf = new StdSchedulerFactory();
             sf.initialize(props);
             scheduler = sf.getScheduler();
-//            scheduler = StdSchedulerFactory.getDefaultScheduler();
             for (String groupName : scheduler.getJobGroupNames()) {
                 for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                     String jobName = jobKey.getName();
@@ -96,6 +94,9 @@ public class SchedulerBean {
 
     public void createJob(QuartzJob job) throws SchedulerException {
         System.out.println("Adding in EJB....");
+        if (scheduler.checkExists(JobKey.jobKey(job.getJobName(), job.getJobGroup()))) {
+            throw new SchedulerException("Job already exists");
+        }
         JobDetail newjob = newJob(SayHello.class).withIdentity(job.getJobName(), job.getJobGroup()).requestRecovery().build();
         SimpleTrigger trigger = newTrigger()
                 .withIdentity(job.getJobName(), job.getJobGroup())
@@ -124,9 +125,13 @@ public class SchedulerBean {
         //scheduler.unscheduleJob(TriggerKey.triggerKey(job.getJobName(), job.getJobGroup()));
     }
 
-    public void fireNow(String jobName, String jobGroup)
+    public void fireNow(QuartzJob job)
             throws SchedulerException {
-        JobKey jobKey = new JobKey(jobName, jobGroup);
+//        System.out.println("User is: " + sessionContext.getCallerPrincipal().getName());
+        if (Faces.isUserInRole("SuperAdmin")) {
+            System.out.println("User is SuperAdmin!");
+        }
+        JobKey jobKey = new JobKey(job.getJobName(), job.getJobGroup());
         scheduler.triggerJob(jobKey);
     }
 

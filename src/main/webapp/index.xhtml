@@ -8,13 +8,14 @@
         <title>Facelet Title</title>
     </h:head>
     <h:body>
-        <p:growl autoUpdate="true"/>
+        <p:growl id="messages" autoUpdate="true" globalOnly="false"/>
         <h:form id="mainForm">
             <p:panel id="panel" header="Quartz">
                 <p:contextMenu for="table">
-                    <p:menuitem value="remove" actionListener="#{viewController.removeJob}"/>
-                    <p:menuitem value="start" actionListener="#{viewController.startJob}"/>
-                    <p:menuitem value="pause" actionListener="#{viewController.pauseJob}"/>
+                    <p:menuitem value="remove" actionListener="#{viewController.removeJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
+                    <p:menuitem value="start" actionListener="#{viewController.startJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
+                    <p:menuitem value="pause" actionListener="#{viewController.pauseJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
+                    <p:menuitem value="finreNow" actionListener="#{viewController.fireNow(event)}"/>
                 </p:contextMenu>
                 <p:dataTable id="table" value="#{viewController.quartzJobs}" var="item" selection="#{viewController.job}" selectionMode="single"
                              rowKey="#{item.jobName}">
@@ -30,10 +31,10 @@
                 </p:dataTable>
                 <f:facet name="footer">
                     <p:commandButton value="addJob" onclick="PF('poll').stop();" oncomplete="createView.show();" actionListener="#{viewController.prepare(event)}" update=":createForm"/>
-                    <p:commandButton value="removeJob" update="panel"/>
+                    <p:commandButton value="removeJob" actionListener="#{viewController.testRemote(event)}" update="panel"/>
                 </f:facet>
             </p:panel>
-            <p:poll widgetVar="poll" global="false" interval="3" listener="#{viewController.quartzJobsListener}"/>
+            <p:poll widgetVar="poll" global="false" interval="10" listener="#{viewController.quartzJobsListener}" update="panel"/>
         </h:form>
     </h:body>
 
@@ -45,7 +46,7 @@
                 <p:outputLabel for="group" value="Job Group"/>
                 <p:inputText id="group" value="#{viewController.job.jobGroup}"/>
                 <f:facet name="footer">
-                    <p:commandButton value="Add" action="#{viewController.createJob(event)}" update=":mainForm:panel" oncomplete="PF('poll').start();"/>
+                    <p:commandButton value="Add" action="#{viewController.createJob(event)}" update=":mainForm:panel :messages" oncomplete="PF('poll').start();"/>
                 </f:facet>
             </p:panelGrid>
         </h:form>
