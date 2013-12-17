@@ -63,7 +63,7 @@
     </security-constraint>
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>PropertiesLoginModule</realm-name>
+        <realm-name>PropertiesLogin</realm-name>
     </login-config>
     <security-role>
         <description/>

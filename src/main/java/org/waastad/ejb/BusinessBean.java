@@ -7,7 +7,7 @@ package org.waastad.ejb;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
-import javax.ejb.LocalBean;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 
@@ -27,6 +27,8 @@ public class BusinessBean implements BusinessBeanRemote, BusinessBeanLocal {
 //        System.out.println("BusinessBean User is " + sessionContext.getCallerPrincipal().getName());
 //        return "Hello " + name;
 //    }
+    @RolesAllowed("SuperAdmin")
+    @Override
     public String sayHello() {
         System.out.println("BusinessBean User is " + sessionContext.getCallerPrincipal().getName());
         return "Hello without input";
