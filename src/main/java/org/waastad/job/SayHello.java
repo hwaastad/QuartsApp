@@ -13,7 +13,6 @@ import javax.naming.NamingException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.waastad.ejb.BusinessBeanLocal;
 import org.waastad.ejb.BusinessBeanRemote;
 
 /**

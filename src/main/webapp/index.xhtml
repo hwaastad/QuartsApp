@@ -12,10 +12,10 @@
         <h:form id="mainForm">
             <p:panel id="panel" header="Quartz">
                 <p:contextMenu for="table">
-                    <p:menuitem value="remove" actionListener="#{viewController.removeJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
-                    <p:menuitem value="start" actionListener="#{viewController.startJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
-                    <p:menuitem value="pause" actionListener="#{viewController.pauseJob}" onclick="PF('poll').stop();" oncomplete="PF('poll').start();"/>
-                    <p:menuitem value="finreNow" actionListener="#{viewController.fireNow(event)}"/>
+                    <p:menuitem value="remove" actionListener="#{viewController.removeJob}"/>
+                    <p:menuitem value="start" actionListener="#{viewController.startJob}"/>
+                    <p:menuitem value="pause" actionListener="#{viewController.pauseJob}"/>
+                    <p:menuitem value="fireNow" actionListener="#{viewController.fireNow(event)}"/>
                 </p:contextMenu>
                 <p:dataTable id="table" value="#{viewController.quartzJobs}" var="item" selection="#{viewController.job}" selectionMode="single"
                              rowKey="#{item.jobName}">
